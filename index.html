@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyHub — Class 10 Resources</title>
+  <meta name="description" content="Free Class 10 study resources — notes, practice sheets, textbook solutions & NCERT textbooks." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<!-- ── Navbar ───────────────────────────────────────────────── -->
+<nav>
+  <div class="container nav-inner">
+    <a class="nav-brand" href="index.html">
+      <div class="brand-icon">📚</div>
+      StudyHub
+    </a>
+    <div class="nav-links">
+      <a class="nav-link active" href="index.html">Home</a>
+      <a class="nav-link" href="browse.html?cat=notes">Notes</a>
+      <a class="nav-link" href="browse.html?cat=practice">Practice</a>
+      <a class="nav-link" href="browse.html?cat=solutions">Solutions</a>
+      <a class="nav-link" href="browse.html?cat=textbooks">Textbooks</a>
+    </div>
+    <a class="nav-admin" href="admin/index.html">⚙ Admin</a>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<main class="page">
+  <div class="page-content">
+    <div class="container">
+
+      <section class="hero">
+        <div class="hero-badge">✨ Class 10 · Academic Year 2024–25</div>
+        <h1 class="hero-title">Your Complete<br>Study Companion</h1>
+        <p class="hero-sub">Notes, practice sheets, solutions & NCERT textbooks — all in one place.</p>
+
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search resources…" id="hero-search" autocomplete="off" />
+        </div>
+      </section>
+
+      <div class="section-label">Choose a Category</div>
+
+      <!-- Category Cards -->
+      <div class="categories-grid" id="categories-grid"></div>
+
+      <!-- Stats strip -->
+      <div style="margin-top:64px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center">
+        <div style="padding:20px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius)">
+          <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold-l)">8+</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">Subjects</div>
+        </div>
+        <div style="padding:20px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius)">
+          <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold-l)" id="stat-chapters">—</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">Chapters</div>
+        </div>
+        <div style="padding:20px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius)">
+          <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold-l)" id="stat-files">—</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">Resources</div>
+        </div>
+        <div style="padding:20px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius)">
+          <div style="font-family:var(--font-display);font-size:2rem;color:var(--gold-l)">100%</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">Free</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- ── PDF Viewer Overlay ────────────────────────────────────── -->
+<div id="viewer-overlay">
+  <div class="viewer-toolbar">
+    <div class="viewer-title" id="viewer-title">Document</div>
+    <div class="viewer-nav">
+      <button class="viewer-btn" id="viewer-prev" title="Previous page">‹</button>
+      <span class="viewer-page-info" id="viewer-page-info">— / —</span>
+      <button class="viewer-btn" id="viewer-next" title="Next page">›</button>
+      <a id="viewer-dl-btn" href="#" download class="btn btn-dl" style="font-size:0.75rem;padding:6px 12px">⬇ Download</a>
+      <button class="viewer-close" id="viewer-close" title="Close (Esc)">✕</button>
+    </div>
+  </div>
+
+  <div class="flipbook-container">
+    <button class="flip-arrow flip-prev" id="flip-prev" disabled>‹</button>
+    <div class="flipbook" id="flipbook">
+      <!-- Pages rendered here -->
+    </div>
+    <button class="flip-arrow flip-next" id="flip-next" disabled>›</button>
+  </div>
+</div>
+
+<!-- ── Footer ───────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <span class="love">Made with <span class="heart">♥</span> by <span class="name">Viraj Chavan</span></span>
+    &nbsp;·&nbsp; Class 10 Resources &nbsp;·&nbsp; Free for all students
+  </div>
+</footer>
+
+<!-- ── Scripts ──────────────────────────────────────────────── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  // Hero search redirect
+  document.getElementById('hero-search').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.trim()) {
+      window.location.href = `browse.html?cat=notes&q=${encodeURIComponent(this.value)}`;
+    }
+  });
+
+  // Compute stats
+  document.addEventListener('DOMContentLoaded', () => {
+    let chapTotal = 0, fileTotal = 0;
+    for (const cat of Object.values(RESOURCES)) {
+      for (const subj of Object.values(cat)) {
+        for (const [, files] of Object.entries(subj)) {
+          chapTotal++;
+          fileTotal += files.length;
+        }
+      }
+    }
+    const uniqueChaps = new Set();
+    for (const subj of Object.values(RESOURCES['textbooks'] || {})) {
+      Object.keys(subj).forEach(c => uniqueChaps.add(c));
+    }
+    document.getElementById('stat-chapters').textContent = uniqueChaps.size + '+';
+    document.getElementById('stat-files').textContent = fileTotal + '+';
+  });
+</script>
+
+</body>
+</html>

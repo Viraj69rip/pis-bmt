@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse — StudyHub</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <a class="nav-brand" href="index.html">
+      <div class="brand-icon">📚</div>
+      StudyHub
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="browse.html?cat=notes">Notes</a>
+      <a class="nav-link" href="browse.html?cat=practice">Practice</a>
+      <a class="nav-link" href="browse.html?cat=solutions">Solutions</a>
+      <a class="nav-link" href="browse.html?cat=textbooks">Textbooks</a>
+    </div>
+    <a class="nav-admin" href="admin/index.html">⚙ Admin</a>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="page-content">
+    <div class="container">
+
+      <div class="breadcrumb" id="breadcrumb"></div>
+
+      <div class="subjects-header" id="page-header"></div>
+
+      <!-- Search -->
+      <div class="search-bar" style="max-width:380px;margin:0 0 32px">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Filter…" id="search-input" autocomplete="off" />
+      </div>
+
+      <div id="page-content"></div>
+
+    </div>
+  </div>
+</main>
+
+<!-- ── PDF Viewer Overlay ───────────────────────────────────── -->
+<div id="viewer-overlay">
+  <div class="viewer-toolbar">
+    <div class="viewer-title" id="viewer-title">Document</div>
+    <div class="viewer-nav">
+      <button class="viewer-btn" id="viewer-prev" title="Previous page">‹</button>
+      <span class="viewer-page-info" id="viewer-page-info">— / —</span>
+      <button class="viewer-btn" id="viewer-next" title="Next page">›</button>
+      <a id="viewer-dl-btn" href="#" download class="btn btn-dl" style="font-size:0.75rem;padding:6px 12px">⬇ Download</a>
+      <button class="viewer-close" id="viewer-close" title="Close (Esc)">✕</button>
+    </div>
+  </div>
+
+  <div class="flipbook-container">
+    <button class="flip-arrow flip-prev" id="flip-prev" disabled>‹</button>
+    <div class="flipbook" id="flipbook"></div>
+    <button class="flip-arrow flip-next" id="flip-next" disabled>›</button>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <span class="love">Made with <span class="heart">♥</span> by <span class="name">Viraj Chavan</span></span>
+    &nbsp;·&nbsp; Class 10 Resources &nbsp;·&nbsp; Free for all students
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+
+</body>
+</html>

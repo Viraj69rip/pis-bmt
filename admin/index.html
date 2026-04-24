@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — StudyHub</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+    .tab-btn {
+      padding: 10px 20px; font-size: 0.875rem; font-weight: 500;
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      font-family: var(--font-body); transition: var(--transition);
+      margin-bottom: -1px;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--gold-l); border-bottom-color: var(--gold); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .file-entry {
+      display: grid; grid-template-columns: 1fr 1fr auto;
+      gap: 10px; margin-bottom: 10px; align-items: end;
+    }
+    .remove-btn {
+      padding: 10px 14px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+      color: #f87171; border-radius: 8px; cursor: pointer; font-size: 0.85rem;
+      font-family: var(--font-body); transition: var(--transition); white-space: nowrap;
+    }
+    .remove-btn:hover { background: rgba(239,68,68,0.2); }
+    .success-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
+      background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25);
+      border-radius: 999px; color: #4ade80; font-size: 0.8rem;
+    }
+    .warning-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);
+      border-radius: 999px; color: #fbbf24; font-size: 0.8rem;
+    }
+    .code-output {
+      background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+      font-family: 'Courier New', monospace; font-size: 0.78rem;
+      color: #a3e635; white-space: pre-wrap; max-height: 400px;
+      overflow-y: auto; line-height: 1.5;
+    }
+    .section-sep { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="admin-login" id="login-screen">
+  <div class="admin-login-card">
+    <div style="font-size:2.5rem;margin-bottom:16px">⚙️</div>
+    <h2>Admin Panel</h2>
+    <p>Enter the admin password to manage StudyHub resources.</p>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input" id="pwd-input" placeholder="Enter admin password" />
+    </div>
+    <button class="btn-gold" id="login-btn">Login →</button>
+    <div id="login-error" style="margin-top:12px;color:#f87171;font-size:0.8rem;display:none">
+      ❌ Incorrect password. Try again.
+    </div>
+    <div style="margin-top:20px;font-size:0.75rem;color:var(--text-muted)">
+      Default password: <code style="color:var(--gold)">StudyHub@2025</code>
+    </div>
+  </div>
+  <div style="font-size:0.75rem;color:var(--text-muted);margin-top:16px">
+    <a href="../index.html" style="color:var(--gold);text-decoration:none">← Back to StudyHub</a>
+  </div>
+</div>
+
+<!-- Admin Panel (hidden until login) -->
+<div class="admin-panel" id="admin-panel">
+
+  <!-- Admin Header -->
+  <div class="admin-header">
+    <div class="container admin-header-inner">
+      <div>
+        <a class="nav-brand" href="../index.html" style="font-size:1.2rem">
+          <div class="brand-icon" style="width:28px;height:28px;font-size:0.8rem">📚</div>
+          StudyHub
+        </a>
+      </div>
+      <div class="admin-title">⚙️ Admin Panel</div>
+      <button class="btn btn-dl" id="logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:32px;padding-bottom:80px">
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="add">➕ Add Resource</button>
+      <button class="tab-btn" data-tab="manage">📋 Manage Resources</button>
+      <button class="tab-btn" data-tab="export">📤 Export data.js</button>
+      <button class="tab-btn" data-tab="guide">📖 Upload Guide</button>
+    </div>
+
+    <!-- TAB: Add Resource -->
+    <div class="tab-panel active" id="tab-add">
+      <div style="max-width:640px">
+        <div class="admin-card">
+          <h3>Add a New File</h3>
+
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-input form-select" id="add-cat">
+              <option value="">— Select Category —</option>
+              <option value="notes">📝 Notes</option>
+              <option value="practice">✏️ Practice Sheets</option>
+              <option value="solutions">✅ Textbook Solutions</option>
+              <option value="textbooks">📚 Textbooks</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <select class="form-input form-select" id="add-sub">
+              <option value="">— Select Subject —</option>
+              <option value="science">🔬 Science</option>
+              <option value="maths">📐 Mathematics</option>
+              <option value="history">📜 History</option>
+              <option value="geography">🌍 Geography</option>
+              <option value="political">⚖️ Political Science</option>
+              <option value="economics">📊 Economics</option>
+              <option value="english">📖 English</option>
+              <option value="hindi">🪔 Hindi</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Chapter Name</label>
+            <input type="text" class="form-input" id="add-chap"
+              placeholder="e.g. Chapter 1 – Chemical Reactions" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">File Name (display name)</label>
+            <input type="text" class="form-input" id="add-fname"
+              placeholder="e.g. NOTES - 1 - CHEMICAL REACTIONS.pdf" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">GitHub Raw URL</label>
+            <input type="url" class="form-input" id="add-url"
+              placeholder="https://raw.githubusercontent.com/user/repo/main/notes/..." />
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px">
+              Upload your PDF to GitHub first, then paste the raw URL here.
+            </div>
+          </div>
+
+          <button class="btn-gold" id="add-btn" style="width:auto;padding:10px 28px">Add Resource</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Manage Resources -->
+    <div class="tab-panel" id="tab-manage">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+        <select class="form-input form-select" id="filter-cat" style="max-width:220px">
+          <option value="">All Categories</option>
+          <option value="notes">Notes</option>
+          <option value="practice">Practice Sheets</option>
+          <option value="solutions">Textbook Solutions</option>
+          <option value="textbooks">Textbooks</option>
+        </select>
+        <select class="form-input form-select" id="filter-sub" style="max-width:220px">
+          <option value="">All Subjects</option>
+          <option value="science">Science</option>
+          <option value="maths">Mathematics</option>
+          <option value="history">History</option>
+          <option value="geography">Geography</option>
+          <option value="political">Political Science</option>
+          <option value="economics">Economics</option>
+          <option value="english">English</option>
+          <option value="hindi">Hindi</option>
+        </select>
+        <button class="btn btn-view" id="filter-btn">Filter</button>
+      </div>
+      <div id="resource-list"></div>
+    </div>
+
+    <!-- TAB: Export -->
+    <div class="tab-panel" id="tab-export">
+      <div class="admin-card" style="max-width:800px">
+        <h3>Export data.js</h3>
+        <p style="color:var(--text-dim);font-size:0.875rem;margin-bottom:20px">
+          Copy this code and replace the <code style="color:var(--gold)">RESOURCES</code> object in
+          <code style="color:var(--gold)">assets/js/data.js</code> in your GitHub repo to persist changes.
+        </p>
+        <button class="btn btn-view" id="export-btn" style="margin-bottom:16px">🔄 Generate Export</button>
+        <button class="btn btn-dl" id="copy-btn" style="margin-bottom:16px">📋 Copy to Clipboard</button>
+        <div class="code-output" id="export-output">// Click "Generate Export" above</div>
+      </div>
+    </div>
+
+    <!-- TAB: Guide -->
+    <div class="tab-panel" id="tab-guide">
+      <div class="admin-card" style="max-width:700px">
+        <h3>📖 How to Upload Files to GitHub</h3>
+        <div style="font-size:0.875rem;color:var(--text-dim);line-height:1.8;display:flex;flex-direction:column;gap:16px">
+          <div>
+            <strong style="color:var(--text)">Step 1 — Create a GitHub Repository</strong><br>
+            Go to <a href="https://github.com/new" target="_blank" style="color:var(--gold)">github.com/new</a>,
+            create a public repo named e.g. <code style="color:var(--gold)">studyhub-resources</code>.
+          </div>
+          <div>
+            <strong style="color:var(--text)">Step 2 — Organise your PDFs</strong><br>
+            Suggested folder structure:<br>
+            <code style="color:#a3e635">
+              notes/science/ch01-chemical-reactions.pdf<br>
+              notes/maths/ch01-real-numbers.pdf<br>
+              practice/science/ch01-practice.pdf<br>
+              solutions/science/ch01-solutions.pdf<br>
+              textbooks/science/ch01-textbook.pdf
+            </code>
+          </div>
+          <div>
+            <strong style="color:var(--text)">Step 3 — Upload via GitHub Web UI</strong><br>
+            Open the folder in your repo → click <em>Add file → Upload files</em> → drag & drop your PDFs.
+          </div>
+          <div>
+            <strong style="color:var(--text)">Step 4 — Get the Raw URL</strong><br>
+            Click the file in GitHub → click <em>Raw</em> → copy the URL.<br>
+            It looks like:<br>
+            <code style="color:#a3e635">https://raw.githubusercontent.com/yourname/studyhub-resources/main/notes/science/ch01.pdf</code>
+          </div>
+          <div>
+            <strong style="color:var(--text)">Step 5 — Add to Admin Panel</strong><br>
+            Paste that URL in the <em>Add Resource</em> tab above.
+          </div>
+          <div>
+            <strong style="color:var(--text)">Step 6 — Deploy on GitHub Pages</strong><br>
+            Go to your website repo Settings → Pages → Source: <em>Deploy from a branch → main</em>.<br>
+            Your site will be live at <code style="color:var(--gold)">https://yourname.github.io/studyhub/</code>
+          </div>
+          <hr class="section-sep" />
+          <div>
+            <strong style="color:var(--text)">🔑 Changing the Admin Password</strong><br>
+            Open <code style="color:var(--gold)">assets/js/data.js</code> and update <code>ADMIN_HASH</code>.
+            Run this in the browser console to generate a hash:<br>
+            <code style="color:#a3e635;display:block;margin-top:8px">
+              crypto.subtle.digest('SHA-256',<br>
+              &nbsp;&nbsp;new TextEncoder().encode('YourNewPassword'))<br>
+              .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+            </code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /admin-panel -->
+
+<footer>
+  <div class="container">
+    <span class="love">Made with <span class="heart">♥</span> by <span class="name">Viraj Chavan</span></span>
+  </div>
+</footer>
+
+<script src="../assets/js/data.js"></script>
+<script>
+/* ── In-memory resource store (loaded from data.js then localStorage) ── */
+let liveResources = null;
+
+function loadLiveResources() {
+  const saved = localStorage.getItem('studyhub_resources');
+  if (saved) {
+    try { liveResources = JSON.parse(saved); return; } catch {}
+  }
+  // Deep clone from data.js
+  liveResources = JSON.parse(JSON.stringify(RESOURCES));
+  // Remove NCERT auto-entries from non-textbook cats for clarity
+}
+
+function saveLiveResources() {
+  localStorage.setItem('studyhub_resources', JSON.stringify(liveResources));
+}
+
+/* ── Password check ─────────────────────────────────────────── */
+// Simple plain-text check (easy to change)
+const ADMIN_PASSWORD = 'StudyHub@2025';
+
+document.getElementById('login-btn').addEventListener('click', tryLogin);
+document.getElementById('pwd-input').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+function tryLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  if (pwd === ADMIN_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').classList.add('active');
+    loadLiveResources();
+    renderResourceList();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  document.getElementById('admin-panel').classList.remove('active');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pwd-input').value = '';
+});
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'manage') renderResourceList();
+  });
+});
+
+/* ── Add Resource ───────────────────────────────────────────── */
+document.getElementById('add-btn').addEventListener('click', () => {
+  const cat   = document.getElementById('add-cat').value;
+  const sub   = document.getElementById('add-sub').value;
+  const chap  = document.getElementById('add-chap').value.trim();
+  const fname = document.getElementById('add-fname').value.trim();
+  const url   = document.getElementById('add-url').value.trim();
+
+  if (!cat || !sub || !chap || !fname || !url) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  if (!liveResources[cat]) liveResources[cat] = {};
+  if (!liveResources[cat][sub]) liveResources[cat][sub] = {};
+  if (!liveResources[cat][sub][chap]) liveResources[cat][sub][chap] = [];
+
+  liveResources[cat][sub][chap].push({ name: fname, url });
+  saveLiveResources();
+
+  // Clear form
+  ['add-cat','add-sub','add-chap','add-fname','add-url'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+  });
+
+  showToast('✅ Resource added successfully!');
+});
+
+/* ── Manage / List ──────────────────────────────────────────── */
+function renderResourceList() {
+  const filterCat = document.getElementById('filter-cat').value;
+  const filterSub = document.getElementById('filter-sub').value;
+  const list = document.getElementById('resource-list');
+  list.innerHTML = '';
+
+  let found = 0;
+
+  for (const [catId, subjects] of Object.entries(liveResources)) {
+    if (filterCat && catId !== filterCat) continue;
+    const catMeta = { notes:'Notes', practice:'Practice Sheets', solutions:'Textbook Solutions', textbooks:'Textbooks' };
+
+    for (const [subId, chapters] of Object.entries(subjects)) {
+      if (filterSub && subId !== filterSub) continue;
+
+      for (const [chapName, files] of Object.entries(chapters)) {
+        files.forEach((file, fi) => {
+          found++;
+          const row = document.createElement('div');
+          row.style.cssText = 'display:grid;grid-template-columns:100px 120px 1fr 1fr auto;gap:10px;align-items:center;padding:10px 16px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;font-size:0.8rem';
+          row.innerHTML = `
+            <span style="color:var(--text-muted)">${catMeta[catId]||catId}</span>
+            <span style="color:var(--text-dim);font-weight:500">${subId}</span>
+            <span style="color:var(--text)">${chapName}</span>
+            <span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${file.name}">${file.name}</span>
+            <button class="remove-btn" data-cat="${catId}" data-sub="${subId}" data-chap="${encodeURIComponent(chapName)}" data-fi="${fi}">🗑 Remove</button>
+          `;
+          list.appendChild(row);
+        });
+      }
+    }
+  }
+
+  if (found === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">No resources found.</div>';
+  }
+
+  list.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { cat, sub, fi } = btn.dataset;
+      const chap = decodeURIComponent(btn.dataset.chap);
+      if (!confirm(`Remove "${liveResources[cat][sub][chap][fi].name}"?`)) return;
+      liveResources[cat][sub][chap].splice(parseInt(fi), 1);
+      if (liveResources[cat][sub][chap].length === 0) delete liveResources[cat][sub][chap];
+      saveLiveResources();
+      renderResourceList();
+    });
+  });
+}
+
+document.getElementById('filter-btn').addEventListener('click', renderResourceList);
+
+/* ── Export ─────────────────────────────────────────────────── */
+document.getElementById('export-btn').addEventListener('click', () => {
+  const output = document.getElementById('export-output');
+  const json = JSON.stringify(liveResources, null, 2);
+  output.textContent = `// PASTE THIS INTO assets/js/data.js — replace the RESOURCES object\n\nconst RESOURCES = ${json};`;
+});
+
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const text = document.getElementById('export-output').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Copied to clipboard!'));
+});
+
+/* ── Toast ───────────────────────────────────────────────────── */
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast success';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+</script>
+
+</body>
+</html>
